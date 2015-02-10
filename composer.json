@@ -1,7 +1,7 @@
 {
     "name": "enl/moses-php-client",
     "description": "PHP Client for Moses xml-rpc server. Moses is a machine translation system",
-    "license": "MIT",
+    "license": "GPL-3.0+",
     "authors": [
         {
             "name": "Alex Panshin",
