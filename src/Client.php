@@ -33,7 +33,7 @@ class Client
      */
     public function getEncoder()
     {
-        if (is_null($this->encoder)) {
+        if (null === $this->encoder) {
             $this->encoder = new XmlrpcEncoder();
         }
 
@@ -45,7 +45,7 @@ class Client
      */
     public function getDecoder()
     {
-        if (is_null($this->decoder)) {
+        if (null === $this->decoder) {
             $this->decoder = new XmlrpcDecoder();
         }
 
@@ -53,31 +53,34 @@ class Client
     }
 
     /**
-     * @param string $text Text to translate
-     * @param bool $align Refer to Moses docs what does it mean
-     * @param bool $reportAllFactors Refer to Moses docs what does it mean
-     * @param bool $returnOnlyText If set function will parse response and return just translated text. Otherwise, the whole data structure as is.
+     * @param string $text    Text to translate
+     * @param array  $options . Possible options are:
+     *                        * align. Moses specific parameter. Please consider to read its docs. By default, is false.
+     *                        * report-all-factors. Moses specific parameter. Please consider to read its docs. By default, is false.
+     *                        * return-text. Whether to return only translated text or the whole decoded response.
      * @return string|array
      * @throws \Comodojo\Exception\XmlrpcException
      * @throws \Exception
      */
-    public function translate($text, $align = false, $reportAllFactors = false, $returnOnlyText = true)
+    public function translate($text, array $options = [])
     {
-        $response = $this->curl('translate', [[
-            'text' => $text,
-            'align' => $align,
-            'report-all-factors' => $reportAllFactors
-        ]]);
+        $options = array_merge([
+            'align'              => false,
+            'report-all-factors' => false,
+            'return-text'        => true
+        ], $options);
+
+        $response = $this->curl('translate', [$this->createRequestParameters($text, $options)]);
 
         // Moses returns the only parameter so that we can delete wrapper
         $decoded = $this->getDecoder()->decodeResponse($response)[0];
 
-        return $returnOnlyText ? $decoded['text'] : $decoded;
+        return $options['return-text'] ? $decoded['text'] : $decoded;
     }
 
     /**
      * @param string $method
-     * @param array $params
+     * @param array  $params
      * @return string
      */
     protected function curl($method, $params)
@@ -88,5 +91,14 @@ class Client
         curl_setopt($ch, CURLOPT_POSTFIELDS, $this->getEncoder()->encodeCall($method, $params));
 
         return curl_exec($ch);
+    }
+
+    private function createRequestParameters($text, $options)
+    {
+        return [
+            'text'               => $text,
+            'align'              => $options['align'],
+            'report-all-factors' => $options['report-all-factors']
+        ];
     }
 }
