@@ -89,6 +89,7 @@ class Client
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $this->getEncoder()->encodeCall($method, $params));
+        curl_setopt($ch, CURLOPT_TIMEOUT, 600);
 
         return curl_exec($ch);
     }
