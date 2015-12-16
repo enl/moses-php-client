@@ -4,7 +4,7 @@
 namespace Enl\MosesClient\Tests;
 
 use Comodojo\Exception\XmlrpcException;
-use Enl\MosesClient\XmlrpcProtocol;
+use Enl\MosesClient\Transport;
 use Mockery as m;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
 
@@ -16,7 +16,7 @@ class XmlrpcProtocolTest extends MockeryTestCase
     {
         parent::setUp();
 
-        $this->protocol = new XmlrpcProtocol();
+        $this->protocol = new Transport('');
     }
 
 

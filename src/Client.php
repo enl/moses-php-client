@@ -4,25 +4,29 @@ namespace Enl\MosesClient;
 
 class Client
 {
-    /** @var string */
-    private $base_url;
-
-    /** @var XmlrpcProtocol */
-    private $protocol;
+    /** @var Transport */
+    private $transport;
 
     /**
-     * @param XmlrpcProtocol $protocol
-     * @param string $base_url Server address, i.e. 'http://moses-server.ltd:8080'
+     * @param Transport $transport
      */
-    public function __construct(XmlrpcProtocol $protocol, $base_url)
+    public function __construct(Transport $transport)
     {
-        $this->protocol = $protocol;
-        $this->base_url = $base_url;
+        $this->transport = $transport;
     }
 
     /**
-     * @param string $text    Text to translate
-     * @param array  $options . Possible options are:
+     * @param $baseUrl
+     * @return static
+     */
+    public static function factory($baseUrl)
+    {
+        return new static(new Transport($baseUrl));
+    }
+
+    /**
+     * @param string $text Text to translate
+     * @param array $options Possible options are:
      *                        * align. Moses specific parameter. Please consider to read its docs. By default, is false.
      *                        * report-all-factors. Moses specific parameter. Please consider to read its docs. By default, is false.
      *                        * return-text. Whether to return only translated text or the whole decoded response.
@@ -31,40 +35,22 @@ class Client
     public function translate($text, array $options = [])
     {
         $options = array_merge([
-            'align'              => false,
+            'align' => false,
             'report-all-factors' => false,
-            'return-text'        => true
+            'return-text' => true
         ], $options);
 
-        $response = $this->curl('translate', [$this->createRequestParameters($text, $options)]);
+        $response = $this->transport->call('translate', [$this->createRequestParameters($text, $options)]);
 
-        // Moses returns the only parameter so that we can delete wrapper
-        $decoded = $this->protocol->decode($response)[0];
-
-        return $options['return-text'] ? $decoded['text'] : $decoded;
+        return $options['return-text'] ? $response[0]['text'] : $response[0];
     }
 
-    /**
-     * @param string $method
-     * @param array  $params
-     * @return string
-     */
-    protected function curl($method, $params)
-    {
-        $ch = curl_init($this->base_url);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $this->protocol->encode($method, $params));
-        curl_setopt($ch, CURLOPT_TIMEOUT, 600);
-
-        return curl_exec($ch);
-    }
 
     private function createRequestParameters($text, $options)
     {
         return [
-            'text'               => $text,
-            'align'              => $options['align'],
+            'text' => $text,
+            'align' => $options['align'],
             'report-all-factors' => $options['report-all-factors']
         ];
     }
