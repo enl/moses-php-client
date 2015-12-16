@@ -12,9 +12,14 @@
         "ext-curl": "*",
         "comodojo/xmlrpc": "1.0.*"
     },
+    "require-dev": {
+        "phpunit/phpunit": "~4.8",
+        "mockery/mockery": "~0.9"
+    },
     "autoload": {
         "psr-4": {
-            "Enl\\MosesClient\\": "src/"
+            "Enl\\MosesClient\\": "src/",
+            "Enl\\MosesClient\\Tests\\": "tests/"
         }
     }
 }
