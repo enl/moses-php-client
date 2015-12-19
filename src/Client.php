@@ -45,7 +45,7 @@ class Client
      */
     public function translate($text, $align = false)
     {
-        $options = $align ? ['text' => $text, 'align' => $align] : ['text' => $text];
+        $options = [$align ? ['text' => $text, 'align' => $align] : ['text' => $text]];
 
         $response = $this->transport->call('translate', $options);
 

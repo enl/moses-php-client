@@ -52,7 +52,7 @@ class ClientTest extends MockeryTestCase
         $expected_args = $align ? [ 'text' => $text, 'align' => $align ] : ['text' => $text];
 
         $transport = m::mock('Enl\MosesClient\Transport');
-        $transport->shouldReceive('call')->withArgs(['translate', $expected_args])->once();
+        $transport->shouldReceive('call')->withArgs(['translate', [$expected_args]])->once();
 
         $client = new Client($transport);
         $client->translate($text, $align);
