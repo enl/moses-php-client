@@ -2,8 +2,16 @@
 
 namespace Enl\MosesClient;
 
+use Enl\MosesClient\Exception\TransportException;
+
 class Client
 {
+    private static $default_options = [
+        'align' => false,
+        'report-all-factors' => false,
+        'return-text' => true
+    ];
+
     /** @var Transport */
     private $transport;
 
@@ -31,14 +39,11 @@ class Client
      *                        * report-all-factors. Moses specific parameter. Please consider to read its docs. By default, is false.
      *                        * return-text. Whether to return only translated text or the whole decoded response.
      * @return string|array
+     * @throws TransportException
      */
     public function translate($text, array $options = [])
     {
-        $options = array_merge([
-            'align' => false,
-            'report-all-factors' => false,
-            'return-text' => true
-        ], $options);
+        $options = array_merge(self::$default_options, $options);
 
         $response = $this->transport->call('translate', [$this->createRequestParameters($text, $options)]);
 

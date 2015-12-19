@@ -32,34 +32,35 @@ class Transport
     }
 
 
+    /**
+     * @param $method
+     * @param $parameters
+     * @return array
+     * @throws TransportException
+     */
     public function call($method, $parameters)
     {
-        $ch = curl_init($this->base_url);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $this->encode($method, $parameters));
-        curl_setopt($ch, CURLOPT_TIMEOUT, 600);
+        try {
+            $ch = curl_init($this->base_url);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $this->encode($method, $parameters));
+            curl_setopt($ch, CURLOPT_TIMEOUT, 600);
 
-        $result = curl_exec($ch);
+            $response = curl_exec($ch);
 
-        if ($result === false) {
-            $e = new TransportException(curl_error($ch), curl_getinfo($ch, CURLINFO_HTTP_CODE));
+            if ($response === false) {
+                $e = new TransportException(curl_error($ch), curl_getinfo($ch, CURLINFO_HTTP_CODE));
+                curl_close($ch);
+
+                throw  $e;
+            }
+
             curl_close($ch);
-
-            throw  $e;
+            return $this->decode($response);
+        } catch (XmlrpcException $e) {
+            throw new TransportException('XML parsing error', 0, $e);
         }
-
-
-        curl_close($ch);
-        return $this->decode($result);
-    }
-
-    /**
-     * @return XmlrpcDecoder
-     */
-    private function getDecoder()
-    {
-        return $this->decoder ?: $this->decoder = new XmlrpcDecoder();
     }
 
     /**
@@ -69,19 +70,11 @@ class Transport
      * @return array
      * @throws XmlrpcException
      */
-    public function decode($response)
+    protected function decode($response)
     {
-        return $this->getDecoder()->decodeResponse($response);
-    }
+        $this->decoder = $this->decoder ?: new XmlrpcDecoder();
 
-
-
-    /**
-     * @return XmlrpcEncoder
-     */
-    private function getEncoder()
-    {
-        return $this->encoder ?: $this->encoder = new XmlrpcEncoder();
+        return $this->decoder->decodeResponse($response);
     }
 
     /**
@@ -92,8 +85,10 @@ class Transport
      * @return string
      * @throws XmlrpcException
      */
-    public function encode($method, array $parameters = [])
+    protected function encode($method, array $parameters = [])
     {
-        return $this->getEncoder()->encodeCall($method, $parameters);
+        $this->encoder = $this->encoder ?: new XmlrpcEncoder();
+
+        return $this->encoder->encodeCall($method, $parameters);
     }
 }
