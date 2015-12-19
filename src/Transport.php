@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Enl\MosesClient;
-
 
 use Comodojo\Exception\XmlrpcException;
 use Comodojo\Xmlrpc\XmlrpcDecoder;
@@ -31,11 +29,12 @@ class Transport
         $this->base_url = $base_url;
     }
 
-
     /**
      * @param $method
      * @param $parameters
+     *
      * @return array
+     *
      * @throws TransportException
      */
     public function call($method, $parameters)
@@ -57,6 +56,7 @@ class Transport
             }
 
             curl_close($ch);
+
             return $this->decode($response);
         } catch (XmlrpcException $e) {
             throw new TransportException('XML parsing error', 0, $e);
@@ -64,10 +64,12 @@ class Transport
     }
 
     /**
-     * Decodes response string into array
+     * Decodes response string into array.
      *
      * @param $response
+     *
      * @return array
+     *
      * @throws XmlrpcException
      */
     protected function decode($response)
@@ -78,11 +80,13 @@ class Transport
     }
 
     /**
-     * Encodes xmlrpc call into xml string
+     * Encodes xmlrpc call into xml string.
      *
      * @param $method
      * @param array $parameters
+     *
      * @return string
+     *
      * @throws XmlrpcException
      */
     protected function encode($method, array $parameters = [])

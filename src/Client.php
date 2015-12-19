@@ -19,6 +19,7 @@ class Client
 
     /**
      * @param $baseUrl
+     *
      * @return static
      */
     public static function factory($baseUrl)
@@ -27,8 +28,8 @@ class Client
     }
 
     /**
-     * @param string $text Text to translate
-     * @param bool $align Should server return alignment information? false, by default
+     * @param string $text  Text to translate
+     * @param bool   $align Should server return alignment information? false, by default
      *
      * The client will receive a map containing the same two keys,
      * where the value associated with the text key is the translated text,
@@ -39,6 +40,7 @@ class Client
      * source start position (src-start) and source end position (src-end).
      *
      * @return array|string
+     *
      * @throws TransportException
      */
     public function translate($text, $align = false)
