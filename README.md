@@ -46,7 +46,7 @@ Text translation is simple as this line of code:
 
     $translation = $client->translate('Text to translate goes here.');
 
-### Options ###
+### Alignment option ###
 
 Actually, `Client::translate` function takes two parameters. The second one is optional `align` `boolean` parameter:
 
