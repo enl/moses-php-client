@@ -36,34 +36,26 @@ class ClientTest extends MockeryTestCase
     public function options()
     {
         return [
-            ['text to translate', true, true],
-            ['text to translate', true, false],
-            ['text to translate', false, false],
-            ['text to translate', false, true]
+            ['text to translate', false],
+            ['text to translate', true],
         ];
     }
 
     /**
      * @param $text
      * @param $align
-     * @param $factors
      * @dataProvider options
      * @test
      */
-    public function shouldPassArgumentsToTransport($text, $align, $factors)
+    public function shouldPassArgumentsToTransport($text, $align)
     {
+        $expected_args = $align ? [ 'text' => $text, 'align' => $align ] : ['text' => $text];
+
         $transport = m::mock('Enl\MosesClient\Transport');
-
-        $expected_args = [
-            'text' => $text,
-            'align' => $align,
-            'report-all-factors' => $factors
-        ];
-
-        $transport->shouldReceive('call')->withArgs(['translate', [$expected_args]])->once();
+        $transport->shouldReceive('call')->withArgs(['translate', $expected_args])->once();
 
         $client = new Client($transport);
-        $client->translate($text, ['align' => $align, 'report-all-factors' => $factors]);
+        $client->translate($text, $align);
     }
 
     public function text()
@@ -82,11 +74,14 @@ class ClientTest extends MockeryTestCase
     public function shouldReturnText($text, $translated)
     {
         $transport = m::mock('Enl\MosesClient\Transport');
-        $transport->shouldReceive('call')->once()->withArgs(['translate', m::any()])->andReturn([['text' => $translated]]);
+        $transport->shouldReceive('call')->once()->withArgs([
+            'translate',
+            m::any()
+        ])->andReturn([['text' => $translated]]);
 
         $client = new Client($transport);
 
-        $actual = $client->translate($text, ['return-text' => true]);
+        $actual = $client->translate($text, false);
         $this->assertInternalType('string', $actual);
         $this->assertEquals($translated, $actual);
     }
@@ -100,11 +95,14 @@ class ClientTest extends MockeryTestCase
     public function shouldReturnArray($text, $translated)
     {
         $transport = m::mock('Enl\MosesClient\Transport');
-        $transport->shouldReceive('call')->once()->withArgs(['translate', m::any()])->andReturn([['text' => $translated]]);
+        $transport->shouldReceive('call')->once()->withArgs([
+            'translate',
+            m::any()
+        ])->andReturn([['text' => $translated]]);
 
         $client = new Client($transport);
 
-        $actual = $client->translate($text, ['return-text' => false]);
+        $actual = $client->translate($text, true);
         $this->assertInternalType('array', $actual);
         $this->assertEquals($translated, $actual['text']);
     }

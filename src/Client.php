@@ -6,12 +6,6 @@ use Enl\MosesClient\Exception\TransportException;
 
 class Client
 {
-    private static $default_options = [
-        'align' => false,
-        'report-all-factors' => false,
-        'return-text' => true
-    ];
-
     /** @var Transport */
     private $transport;
 
@@ -34,29 +28,25 @@ class Client
 
     /**
      * @param string $text Text to translate
-     * @param array $options Possible options are:
-     *                        * align. Moses specific parameter. Please consider to read its docs. By default, is false.
-     *                        * report-all-factors. Moses specific parameter. Please consider to read its docs. By default, is false.
-     *                        * return-text. Whether to return only translated text or the whole decoded response.
-     * @return string|array
+     * @param bool $align Should server return alignment information? false, by default
+     *
+     * The client will receive a map containing the same two keys,
+     * where the value associated with the text key is the translated text,
+     * and the align key (if present) maps to a list of maps.
+     *
+     * The alignment gives the segmentation in target order,
+     * with each list element specifying the target start position (tgt-start),
+     * source start position (src-start) and source end position (src-end).
+     *
+     * @return array|string
      * @throws TransportException
      */
-    public function translate($text, array $options = [])
+    public function translate($text, $align = false)
     {
-        $options = array_merge(self::$default_options, $options);
+        $options = $align ? ['text' => $text, 'align' => $align] : ['text' => $text];
 
-        $response = $this->transport->call('translate', [$this->createRequestParameters($text, $options)]);
+        $response = $this->transport->call('translate', $options);
 
-        return $options['return-text'] ? $response[0]['text'] : $response[0];
-    }
-
-
-    private function createRequestParameters($text, $options)
-    {
-        return [
-            'text' => $text,
-            'align' => $options['align'],
-            'report-all-factors' => $options['report-all-factors']
-        ];
+        return $align ? $response[0] : $response[0]['text'];
     }
 }
