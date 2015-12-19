@@ -1,5 +1,5 @@
-moses-php-client
-================
+Moses Client for PHP
+====================
 
 This package is a simplest possible client for Moses xmlrpc server. Moses is a machine translation system. 
 You can read more about it on [its official website](http://statmt.org/moses).
